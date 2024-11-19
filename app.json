@@ -4,10 +4,10 @@
     "slug": "bmsm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon 오후 2.31.07.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,6 +22,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "newArchEnabled": true
   }
 }

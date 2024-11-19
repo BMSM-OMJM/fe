@@ -1,16 +1,26 @@
-import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
+import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 
 export default function App() {
   const [bpm, setBpm] = useState(0);
 
-  // 두 개의 폰트 로드
+  // 폰트 로드
   const [fontsLoaded] = useFonts({
     MaplestoryOTFLight: require("./assets/fonts/MaplestoryOTFLight.otf"),
     YOnepickBold: require("./assets/fonts/YOnepick-Bold.ttf"),
   });
+
+  // 폰트 로드 상태 확인
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading Fonts...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -23,7 +33,7 @@ export default function App() {
       <View style={styles.main}>
         {/* 텍스트 */}
         <View>
-          <Text style={[styles.txt, styles.onepickFont]}>내 마음은?</Text>
+          <Text style={styles.onepickFont}>내 마음은?</Text>
         </View>
 
         {/* 하트 아이콘 */}
@@ -44,6 +54,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#BFEAFF",
@@ -66,13 +81,16 @@ const styles = StyleSheet.create({
     padding: 40,
     borderRadius: 1000,
   },
-  mapleFont: {},
+  mapleFont: {
+    fontFamily: "MaplestoryOTFLight",
+  },
   bpmText: {
     fontSize: 50,
     marginTop: 26,
   },
   onepickFont: {
-    fontSize: 50,
+    fontFamily: "YOnepickBold", // 폰트 이름 정확히 매칭
+    fontSize: 45,
     marginBottom: 13,
   },
 });
