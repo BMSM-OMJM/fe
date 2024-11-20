@@ -4,6 +4,9 @@ import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 
+import { createDrawerNavigator } from "@react-navigation.drawer";
+import { NavigationContainer } from "@react-navigation/native";
+
 export default function App() {
   const [bpm, setBpm] = useState(0);
 
@@ -12,6 +15,9 @@ export default function App() {
     MaplestoryOTFLight: require("./assets/fonts/MaplestoryOTFLight.otf"),
     YOnepickBold: require("./assets/fonts/YOnepick-Bold.ttf"),
   });
+
+  // 드로워
+  const Drawer = createDrawerNavigator();
 
   // 폰트 로드 상태 확인
   if (!fontsLoaded) {
@@ -48,7 +54,11 @@ export default function App() {
       </View>
 
       {/* 바텀스크롤 */}
-      <View></View>
+      <View>
+        <Drawer.Navigator>
+          <Drawer.Screen name="Home" component={HomeScreen} />
+        </Drawer.Navigator>
+      </View>
     </View>
   );
 }
@@ -89,7 +99,7 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   onepickFont: {
-    fontFamily: "YOnepickBold", // 폰트 이름 정확히 매칭
+    fontFamily: "YOnepickBold",
     fontSize: 45,
     marginBottom: 13,
   },

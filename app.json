@@ -4,7 +4,7 @@
     "slug": "bmsm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon 오후 2.31.07.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash-icon.png",
