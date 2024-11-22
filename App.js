@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native"; // Added Modal and TouchableOpacity
 import { useState } from "react";
 import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
@@ -17,8 +17,26 @@ function HomeScreen() {
   );
 }
 
+function CustomDrawer({ visible, onClose }) { 
+  return (
+    <Modal
+      transparent={true}
+      visible={visible}
+      animationType="slide"
+    >
+      <View style={styles.drawerContainer}>
+        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Text>닫기</Text>
+        </TouchableOpacity>
+        <Text>여기에 필요한 내용을 넣으세요</Text>
+      </View>
+    </Modal>
+  );
+}
+
 export default function App() {
   const [bpm, setBpm] = useState(0);
+  const [drawerVisible, setDrawerVisible] = useState(false); 
 
   // 폰트 로드
   const [fontsLoaded] = useFonts({
@@ -60,6 +78,11 @@ export default function App() {
             <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
           </View>
         </View>
+
+        <TouchableOpacity onPress={() => setDrawerVisible(true)}>
+          <Text>클릭해봐요!! 예시 드로워 (응용해서 만들어봐요)</Text>
+        </TouchableOpacity>
+        <CustomDrawer visible={drawerVisible} onClose={() => setDrawerVisible(false)} />
 
         {/* 바텀스크롤 */}
         <View>
@@ -111,5 +134,15 @@ const styles = StyleSheet.create({
     fontFamily: "YOnepickBold",
     fontSize: 45,
     marginBottom: 13,
+  },
+  drawerContainer: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "flex-start",
+    padding: 20,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 20,
   },
 });
