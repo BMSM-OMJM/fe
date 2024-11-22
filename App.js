@@ -4,7 +4,7 @@ import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 
-import { createDrawerNavigator } from "@react-navigation.drawer";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
