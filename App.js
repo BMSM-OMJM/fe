@@ -7,6 +7,16 @@ import Heart from "./assets/heart.svg";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 
+const Drawer = createDrawerNavigator();
+
+function HomeScreen() {
+  return (
+    <View>
+      <Text>Drawer로 감싸고, HomeScreen을 정의해주는 부분입니다.</Text>
+    </View>
+  );
+}
+
 export default function App() {
   const [bpm, setBpm] = useState(0);
 
@@ -15,9 +25,6 @@ export default function App() {
     MaplestoryOTFLight: require("./assets/fonts/MaplestoryOTFLight.otf"),
     YOnepickBold: require("./assets/fonts/YOnepick-Bold.ttf"),
   });
-
-  // 드로워
-  const Drawer = createDrawerNavigator();
 
   // 폰트 로드 상태 확인
   if (!fontsLoaded) {
@@ -29,37 +36,39 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      {/* 로고 */}
-      <View style={styles.logo}>
-        <Logo />
-      </View>
+    <NavigationContainer>
+      <View style={styles.container}>
+        {/* 로고 */}
+        <View style={styles.logo}>
+          <Logo />
+        </View>
 
-      {/* 메인 기능 */}
-      <View style={styles.main}>
-        {/* 텍스트 */}
+        {/* 메인 기능 */}
+        <View style={styles.main}>
+          {/* 텍스트 */}
+          <View>
+            <Text style={styles.onepickFont}>내 마음은?</Text>
+          </View>
+
+          {/* 하트 아이콘 */}
+          <View style={styles.r}>
+            <Heart />
+          </View>
+
+          {/* BPM 표시 */}
+          <View>
+            <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
+          </View>
+        </View>
+
+        {/* 바텀스크롤 */}
         <View>
-          <Text style={styles.onepickFont}>내 마음은?</Text>
-        </View>
-
-        {/* 하트 아이콘 */}
-        <View style={styles.r}>
-          <Heart />
-        </View>
-
-        {/* BPM 표시 */}
-        <View>
-          <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
+          <Drawer.Navigator>
+            <Drawer.Screen name="Home" component={HomeScreen} />
+          </Drawer.Navigator>
         </View>
       </View>
-
-      {/* 바텀스크롤 */}
-      <View>
-        <Drawer.Navigator>
-          <Drawer.Screen name="Home" component={HomeScreen} />
-        </Drawer.Navigator>
-      </View>
-    </View>
+    </NavigationContainer>
   );
 }
 
