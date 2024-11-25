@@ -7,6 +7,15 @@ import Heart from "./assets/heart.svg";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 
+// HomeScreen 컴포넌트 정의
+function HomeScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Home Screen</Text>
+    </View>
+  );
+}
+
 const Drawer = createDrawerNavigator();
 
 function HomeScreen() {
