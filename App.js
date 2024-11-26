@@ -1,105 +1,182 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native"; // Added Modal and TouchableOpacity
-import { useState } from "react";
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  Modal, 
+  TouchableOpacity, 
+  Image, 
+  Animated, 
+  PanResponder,
+  useWindowDimensions,
+  Easing,
+} from "react-native";
+import { useState, useRef, useEffect } from "react";
 import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
-
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 
-// HomeScreen 컴포넌트 정의
 function HomeScreen() {
+  const [bpm, setBpm] = useState(0);
+  const panY = useRef(new Animated.Value(0)).current;
+  const { height: screenHeight } = useWindowDimensions();
+  
+  const logoPosition = 120;
+  const drawerHeight = screenHeight;
+  const maxTranslate = -(screenHeight - logoPosition - 150);
+
+  const translateY = panY.interpolate({
+    inputRange: [maxTranslate, 0],
+    outputRange: [maxTranslate, 0],
+    extrapolate: 'clamp'
+  });
+
+  // HomeScreen 컴포넌트 내부
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (event, gestureState) => {
+        // 현재 위치에서의 드래그 허용
+        const newValue = gestureState.dy;
+        if (newValue <= 0) {
+          panY.setValue(Math.max(maxTranslate, newValue));
+        } else {
+          panY.setValue(newValue);
+        }
+      },
+      onPanResponderRelease: (event, gestureState) => {
+        // 위로 스와이프
+        if (gestureState.vy < -0.5 || (gestureState.vy < 0.5 && gestureState.dy < -50)) {
+          Animated.timing(panY, {
+            toValue: maxTranslate,
+            duration: 1000,  // 1초
+            useNativeDriver: true,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+          }).start();
+        } 
+        // 아래로 스와이프
+        else if (gestureState.vy > 0.5 || (gestureState.vy > -0.5 && gestureState.dy > 50)) {
+          Animated.timing(panY, {
+            toValue: 0,
+            duration: 1000,  // 1초
+            useNativeDriver: true,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+          }).start();
+        }
+        // 애매한 경우 현재 위치에 따라 결정
+        else {
+          const currentPosition = gestureState.dy;
+          const halfPoint = maxTranslate / 2;
+          
+          Animated.timing(panY, {
+            toValue: currentPosition < halfPoint ? maxTranslate : 0,
+            duration: 1000,
+            useNativeDriver: true,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+          }).start();
+        }
+      }
+    })
+  ).current;
+
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const heartbeat = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.2,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.delay(200),
+    ]).start(() => heartbeat());
+  };
+
+  useEffect(() => {
+    heartbeat();
+  }, []);
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
+    <View style={styles.container}>
+      <View style={styles.logo}>
+        <Logo />
+      </View>
+
+      <View style={styles.main}>
+        <View>
+          <Text style={styles.onepickFont}>내 마음은?</Text>
+        </View>
+
+        <View style={styles.r}>
+          <Animated.View 
+            style={{
+              transform: [{ scale: scaleAnim }]
+            }}
+          >
+            <Heart />
+          </Animated.View>
+        </View>
+
+        <View>
+          <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
+        </View>
+      </View>
+
+      <Animated.View 
+        style={[
+          styles.defaultDrawer,
+          {
+            transform: [{ translateY }],
+            height: drawerHeight
+          }
+        ]}
+        {...panResponder.panHandlers}
+      >
+        <View style={styles.drawerHandle} />
+        <Text>여기에 필요한 내용을 넣으세요</Text>
+      </Animated.View>
     </View>
   );
 }
 
 const Drawer = createDrawerNavigator();
 
-function HomeScreen() {
-  return (
-    <View>
-      <Text>Drawer로 감싸고, HomeScreen을 정의해주는 부분입니다.</Text>
-    </View>
-  );
-}
-
-function CustomDrawer({ visible, onClose }) { 
-  return (
-    <Modal
-      transparent={true}
-      visible={visible}
-      animationType="slide"
-    >
-      <View style={styles.drawerContainer}>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Text>닫기</Text>
-        </TouchableOpacity>
-        <Text>여기에 필요한 내용을 넣으세요</Text>
-      </View>
-    </Modal>
-  );
-}
-
 export default function App() {
-  const [bpm, setBpm] = useState(0);
-  const [drawerVisible, setDrawerVisible] = useState(false); 
-
-  // 폰트 로드
   const [fontsLoaded] = useFonts({
     MaplestoryOTFLight: require("./assets/fonts/MaplestoryOTFLight.otf"),
     YOnepickBold: require("./assets/fonts/YOnepick-Bold.ttf"),
   });
 
-  // 폰트 로드 상태 확인
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading Fonts...</Text>
+        <Image 
+          source={require('./assets/splash.png')} 
+          style={styles.splashImage}
+        />
+        <Text style={styles.loadingText}>당신의 마음을 읽는 중...</Text>
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      <View style={styles.container}>
-        {/* 로고 */}
-        <View style={styles.logo}>
-          <Logo />
-        </View>
-
-        {/* 메인 기능 */}
-        <View style={styles.main}>
-          {/* 텍스트 */}
-          <View>
-            <Text style={styles.onepickFont}>내 마음은?</Text>
-          </View>
-
-          {/* 하트 아이콘 */}
-          <View style={styles.r}>
-            <Heart />
-          </View>
-
-          {/* BPM 표시 */}
-          <View>
-            <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity onPress={() => setDrawerVisible(true)}>
-          <Text>클릭해봐요!! 예시 드로워 (응용해서 만들어봐요)</Text>
-        </TouchableOpacity>
-        <CustomDrawer visible={drawerVisible} onClose={() => setDrawerVisible(false)} />
-
-        {/* 바텀스크롤 */}
-        <View>
-          <Drawer.Navigator>
-            <Drawer.Screen name="Home" component={HomeScreen} />
-          </Drawer.Navigator>
-        </View>
-      </View>
+      <Drawer.Navigator>
+        <Drawer.Screen 
+          name="Home" 
+          component={HomeScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 }
@@ -144,14 +221,31 @@ const styles = StyleSheet.create({
     fontSize: 45,
     marginBottom: 13,
   },
-  drawerContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    justifyContent: "flex-start",
-    padding: 20,
+  defaultDrawer: {
+    position: 'absolute',
+    bottom: "-80%",
+    width: '100%',
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 50,
+    borderTopRightRadius: 50,
+    alignItems: 'center',
+    paddingTop: 15,
   },
-  closeButton: {
-    alignSelf: "flex-end",
-    marginBottom: 20,
+  drawerHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#DDDDDD',
+    borderRadius: 2,
+    marginBottom: 15,
   },
+  splashImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+  },
+  loadingText: {
+    fontSize: 20,
+    marginTop: 20,
+    fontFamily: 'MaplestoryOTFLight',
+  }
 });

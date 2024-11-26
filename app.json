@@ -4,24 +4,24 @@
     "slug": "bmsm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "/Users/iha-eun/o_o/bb/assets/splash.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "/Users/iha-eun/o_o/bb/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#BFEAFF"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "/Users/iha-eun/o_o/bb/assets/splash.png",
+        "backgroundColor": "#BFEAFF"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "/Users/iha-eun/o_o/bb/assets/splash.png"
     },
     "newArchEnabled": true
   }
