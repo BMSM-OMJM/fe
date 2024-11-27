@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
+import Check from "./assets/check.svg";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -84,7 +85,7 @@ function HomeScreen() {
         duration: 500,
         useNativeDriver: true,
       }),
-      Animated.delay(200),
+      Animated.delay(500),
     ]).start(() => heartbeat());
   };
 
@@ -128,8 +129,12 @@ function HomeScreen() {
         ]}
         {...panResponder.panHandlers}
       >
-        <View style={styles.drawerHandle} />
-        <Text>여기에 필요한 내용을 넣으세요</Text>
+        <View style={[styles.drawerHandle, styles.checkSVG]} />
+        <View style={styles.recordCheck}>
+            <Check/>
+            <Text style={[styles.mapleFont, styles.check]}>기록확인</Text>
+        </View>
+        
       </Animated.View>
     </View>
   );
@@ -199,6 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: 1000,
   },
   mapleFont: {
+    marginLeft:20,
     fontFamily: "MaplestoryOTFLight",
   },
   bpmText: {
@@ -227,6 +233,11 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginBottom: 15,
   },
+  recordCheck:{
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+  },
   splashImage: {
     width: 200,
     height: 200,
@@ -236,5 +247,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 20,
     fontFamily: 'MaplestoryOTFLight',
+  },
+  check: {
+    fontSize: 20,
+    color: "#929292",
+    marginLeft: 5 
+  },
+  checkSVG:{
+    display: "flex"
   }
 });
