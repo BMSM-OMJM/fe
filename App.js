@@ -1,15 +1,4 @@
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  Modal, 
-  TouchableOpacity, 
-  Image, 
-  Animated, 
-  PanResponder,
-  useWindowDimensions,
-  Easing,
-} from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, Image, Animated, PanResponder, useWindowDimensions, Easing} from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { useFonts } from "expo-font";
 import Logo from "./assets/logo.svg";
@@ -24,7 +13,7 @@ function HomeScreen() {
   
   const logoPosition = 120;
   const drawerHeight = screenHeight;
-  const maxTranslate = -(screenHeight - logoPosition - 150);
+  const maxTranslate = -(screenHeight - logoPosition - 190);
 
   const translateY = panY.interpolate({
     inputRange: [maxTranslate, 0],
@@ -48,7 +37,7 @@ function HomeScreen() {
       },
       onPanResponderRelease: (event, gestureState) => {
         // 위로 스와이프
-        if (gestureState.vy < -0.5 || (gestureState.vy < 0.5 && gestureState.dy < -50)) {
+        if (gestureState.vy < -0.5 || (gestureState.vy < 0.5 && gestureState.dy < -"50%")) {
           Animated.timing(panY, {
             toValue: maxTranslate,
             duration: 1000,  // 1초
