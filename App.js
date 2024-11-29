@@ -22,7 +22,6 @@ function HomeScreen() {
     extrapolate: 'clamp'
   });
 
-  // HomeScreen 컴포넌트 내부
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -37,34 +36,27 @@ function HomeScreen() {
         }
       },
       onPanResponderRelease: (event, gestureState) => {
-        // 위로 스와이프
-        if (gestureState.vy < -0.5 || (gestureState.vy < 0.5 && gestureState.dy < -"50%")) {
-          Animated.timing(panY, {
-            toValue: maxTranslate,
-            duration: 1000,  // 1초
+        const currentPosition = panY._value;
+        const halfPoint = maxTranslate / 2;
+        
+        if (Math.abs(gestureState.vy) > 2) {
+          // 빠른게 드로워 할 때
+          Animated.spring(panY, {
+            toValue: gestureState.vy > 0 ? 0 : maxTranslate,
             useNativeDriver: true,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+            damping: 20,     // 감쇠 (진동 감소)
+            stiffness: 200,  // 강성 (스프링의 힘)
+            mass: 0.5        // 질량 (움직임의 무게감)
           }).start();
-        } 
-        // 아래로 스와이프
-        else if (gestureState.vy > 0.5 || (gestureState.vy > -0.5 && gestureState.dy > 50)) {
-          Animated.timing(panY, {
-            toValue: 0,
-            duration: 1000,  // 1초
-            useNativeDriver: true,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
-          }).start();
-        }
-        // 애매한 경우 현재 위치에 따라 결정
-        else {
-          const currentPosition = gestureState.dy;
-          const halfPoint = maxTranslate / 2;
-          
-          Animated.timing(panY, {
+        } else {
+
+          // 천천히 드로워 할 때
+          Animated.spring(panY, {
             toValue: currentPosition < halfPoint ? maxTranslate : 0,
-            duration: 1000,
             useNativeDriver: true,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+            damping: 20,
+            stiffness: 200,
+            mass: 0.5
           }).start();
         }
       }
