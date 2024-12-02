@@ -9,29 +9,32 @@ import {
   Animated,
   PanResponder,
   useWindowDimensions,
-} from "react-native"; 
+  FlatList,
+} from "react-native";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack"; 
+import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 import Check from "./assets/check.svg";
-import { Table, Row, Rows } from "react-native-table-component";
-
+import CheckBox from "./assets/checkBox.svg";
 
 // 스플래시 화면
 function SplashScreen({ navigation }) {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("IPInput"); // 2초 후 IP 입력 화면으로 전환
-    }, 2000);
+      navigation.replace("IPInput"); // 4초 후 IP 입력 화면으로 전환
+    }, 4000);
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
   }, []);
 
   return (
     <View style={styles.loadingContainer}>
-      <Image source={require("./assets/splash.png")} style={styles.splashImage} />
+      <Image
+        source={require("./assets/splash.png")}
+        style={styles.splashImage}
+      />
       <Text style={styles.loadingText}>당신의 마음을 읽는 중...</Text>
     </View>
   );
@@ -159,6 +162,12 @@ function HomeScreen() {
   useEffect(() => {
     heartbeat();
   }, []);
+  const DATA = [
+    { id: "1", date: "10월 5일", time: "오후 3시", bpm: "120BPM" },
+    { id: "2", date: "10월 7일", time: "오전 10시", bpm: "116BPM" },
+    { id: "3", date: "10월 13일", time: "오전 12시", bpm: "123BPM" },
+    { id: "4", date: "11월 1일", time: "오후 7시", bpm: "140BPM" },
+  ];
 
   return (
     <View style={styles.container}>
@@ -175,7 +184,10 @@ function HomeScreen() {
         <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
       </View>
       <Animated.View
-        style={[styles.defaultDrawer, { transform: [{ translateY }], height: drawerHeight }]}
+        style={[
+          styles.defaultDrawer,
+          { transform: [{ translateY }], height: drawerHeight },
+        ]}
         {...panResponder.panHandlers}
       >
         <View style={[styles.drawerHandle, styles.checkSVG]} />
@@ -183,6 +195,27 @@ function HomeScreen() {
           <Check />
           <Text style={[styles.mapleFont, styles.check]}>기록확인</Text>
         </View>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerCell}></Text>
+          <Text style={styles.headerCell}>날짜</Text>
+          <Text style={styles.headerCell}>시간</Text>
+          <Text style={styles.headerCell}>심장박동수</Text>
+        </View>
+        {DATA.map((item) => {
+          return (
+            <View style={styles.row}>
+              <View  style={styles.cell}>
+                <TouchableOpacity>
+                  <CheckBox />
+                </TouchableOpacity>
+              </View>
+             
+              <Text style={styles.cell}>{item.date}</Text>
+              <Text style={styles.cell}>{item.time}</Text>
+              <Text style={styles.cell}>{item.bpm}</Text>
+            </View>
+          );
+        })}
       </Animated.View>
     </View>
   );
@@ -199,7 +232,10 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <Image source={require("./assets/splash.png")} style={styles.splashImage} />
+        <Image
+          source={require("./assets/splash.png")}
+          style={styles.splashImage}
+        />
         <Text style={styles.loadingText}>당신의 마음을 읽는 중...</Text>
       </View>
     );
@@ -207,7 +243,10 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        initialRouteName="Splash"
+        screenOptions={{ headerShown: false }}
+      >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="IPInput" component={IPInputScreen} />
         <Stack.Screen name="MainApp" component={MainApp} />
@@ -217,6 +256,32 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  headerRow: {
+    marginHorizontal: 30,
+    flexDirection: "row",
+    backgroundColor: "#F0F0F0",
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  headerCell: {
+    flex: 1,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  row: {
+    marginHorizontal: 30,
+    flexDirection: "row",
+    borderBottomColor: "#E0E0E0",
+  },
+  cell: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "row",
+    textAlign: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    paddingVertical: 10,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -299,7 +364,7 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
   mapleFont: {
-    fontFamily: "Maplestory OTF"
+    fontFamily: "Maplestory OTF",
   },
   bpmText: {
     fontSize: 50,
@@ -326,6 +391,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    marginBottom:0
   },
   checkSVG: {
     display: "flex",
