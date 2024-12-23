@@ -41,15 +41,37 @@ function SplashScreen({ navigation }) {
   );
 }
 
-// IP 입력 화면
+/// IP 입력 화면
 function IPInputScreen({ navigation }) {
   const [ip, setIp] = useState(""); // IP 주소 상태 관리용 state
 
   // IP 제출 처리 함수
-  const handleIpSubmit = () => {
+  const handleIpSubmit = async () => {
     console.log("입력된 IP:", ip); // 디버깅용 로그
     if (ip.trim()) {
-      navigation.replace("MainApp"); // IP가 입력되었으면 메인 앱으로 전환
+      try {
+        // 서버로 IP 전송
+        const response = await fetch('https://yourserver.com/api/userIP', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',  // JSON 형식으로 데이터 전송
+          },
+          body: JSON.stringify({ ip: ip }),  // 입력된 IP를 본문에 포함
+        });
+
+        if (!response.ok) {
+          throw new Error('서버 요청 실패');
+        }
+
+        const responseData = await response.json();  // 서버 응답 처리
+        console.log('서버 응답:', responseData);
+        
+        // 성공적으로 IP를 서버에 전송한 후 MainApp으로 이동
+        navigation.replace("MainApp"); 
+      } catch (error) {
+        console.error('요청 중 오류 발생:', error);  // 에러 처리
+        alert('서버에 연결할 수 없습니다.');
+      }
     } else {
       alert("IP를 입력해주세요!"); // IP가 비어있으면 경고 메시지
     }
