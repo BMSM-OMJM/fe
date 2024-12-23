@@ -9,6 +9,7 @@ import {
   Animated,
   PanResponder,
   useWindowDimensions,
+  FlatList,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -17,14 +18,15 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 import Check from "./assets/check.svg";
+import CheckBox from "./assets/checkBox.svg";
 import { Table, Row, Rows } from "react-native-table-component";
 
 // 스플래시 화면
 function SplashScreen({ navigation }) {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("IPInput"); // 2초 후 IP 입력 화면으로 전환
-    }, 2000);
+      navigation.replace("IPInput"); // 4초 후 IP 입력 화면으로 전환
+    }, 4000);
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
   }, []);
 
@@ -327,6 +329,32 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  headerRow: {
+    marginHorizontal: 30,
+    flexDirection: "row",
+    backgroundColor: "#F0F0F0",
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  headerCell: {
+    flex: 1,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  row: {
+    marginHorizontal: 30,
+    flexDirection: "row",
+    borderBottomColor: "#E0E0E0",
+  },
+  cell: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "row",
+    textAlign: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    paddingVertical: 10,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -436,6 +464,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    marginBottom:0
   },
   checkSVG: {
     display: "flex",
