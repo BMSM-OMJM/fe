@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext, createContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,7 +9,8 @@ import {
   Animated,
   PanResponder,
   useWindowDimensions,
-  FlatList,
+  useState, 
+  useEffect,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -20,6 +21,22 @@ import Heart from "./assets/heart.svg";
 import Check from "./assets/check.svg";
 import CheckBox from "./assets/checkBox.svg";
 import { Table, Row, Rows } from "react-native-table-component";
+
+const IpContext = createContext();
+
+const App = () => {
+  // IP 주소 상태 관리
+  const [ip, setIp] = useState("");
+
+  return (
+    // 2. Provider로 값 제공
+    <IpContext.Provider value={ip}>
+      <IPInputScreen />
+      <HomeScreen />
+    </IpContext.Provider>
+  );
+};
+
 
 // 스플래시 화면
 function SplashScreen({ navigation }) {
@@ -40,10 +57,10 @@ function SplashScreen({ navigation }) {
     </View>
   );
 }
-
+useContext 
 /// IP 입력 화면
 function IPInputScreen({ navigation }) {
-  const [ip, setIp] = useState(""); // IP 주소 상태 관리용 state
+  const [ip, setIp] = useContext(IpContext); // IP 주소 상태 관리용 state
 
   // IP 제출 처리 함수
   const handleIpSubmit = async () => {
@@ -51,7 +68,7 @@ function IPInputScreen({ navigation }) {
     if (ip.trim()) {
       try {
         // 서버로 IP 전송
-        const response = await fetch('https://yourserver.com/api/userIP', {
+        const response = await fetch('/api/userIP', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',  // JSON 형식으로 데이터 전송
@@ -134,6 +151,8 @@ function MainApp() {
 // 메인 홈 화면 컴포넌트
 function HomeScreen() {
   const [bpm, setBpm] = useState(0);  // 심박수 상태 관리
+  const {ip} = useContext(IpContext);
+  const userIP = ip;  // 실제 사용자 IP 값으로 대체하세요
   const panY = useRef(new Animated.Value(0)).current;  // 드로워의 Y축 위치값
   const { height: screenHeight } = useWindowDimensions();  // 화면 높이 가져오기
 
