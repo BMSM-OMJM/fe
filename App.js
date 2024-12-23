@@ -9,16 +9,15 @@ import {
   Animated,
   PanResponder,
   useWindowDimensions,
-} from "react-native"; 
+} from "react-native";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack"; 
+import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Logo from "./assets/logo.svg";
 import Heart from "./assets/heart.svg";
 import Check from "./assets/check.svg";
 import { Table, Row, Rows } from "react-native-table-component";
-
 
 // 스플래시 화면
 function SplashScreen({ navigation }) {
@@ -31,7 +30,10 @@ function SplashScreen({ navigation }) {
 
   return (
     <View style={styles.loadingContainer}>
-      <Image source={require("./assets/splash.png")} style={styles.splashImage} />
+      <Image
+        source={require("./assets/splash.png")}
+        style={styles.splashImage}
+      />
       <Text style={styles.loadingText}>당신의 마음을 읽는 중...</Text>
     </View>
   );
@@ -39,17 +41,19 @@ function SplashScreen({ navigation }) {
 
 // IP 입력 화면
 function IPInputScreen({ navigation }) {
-  const [ip, setIp] = useState(""); // IP 상태를 관리합니다.
+  const [ip, setIp] = useState(""); // IP 주소 상태 관리용 state
 
+  // IP 제출 처리 함수
   const handleIpSubmit = () => {
-    console.log("입력된 IP:", ip); // 입력된 IP를 콘솔에 출력합니다.
+    console.log("입력된 IP:", ip); // 디버깅용 로그
     if (ip.trim()) {
-      navigation.replace("MainApp"); // IP 입력 후 메인 앱으로 이동
+      navigation.replace("MainApp"); // IP가 입력되었으면 메인 앱으로 전환
     } else {
-      alert("IP를 입력해주세요!"); // IP가 비어있을 경우 경고 메시지
+      alert("IP를 입력해주세요!"); // IP가 비어있으면 경고 메시지
     }
   };
 
+  // IP 입력 화면 UI 렌더링
   return (
     <View style={styles.ipContainer}>
       <Text style={styles.ipInputTitle}>IP 입력</Text>
@@ -65,6 +69,24 @@ function IPInputScreen({ navigation }) {
         </TouchableOpacity>
       </View>
     </View>
+  );
+}
+
+// 메인 앱의 Drawer Navigator 설정
+function MainAppDrawerNavigator() {
+  const Drawer = createDrawerNavigator(); // Drawer Navigator 생성
+
+  // Drawer Navigator 구조 정의
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false, // 헤더 숨김 설정
+        }}
+      />
+    </Drawer.Navigator>
   );
 }
 
@@ -85,129 +107,217 @@ function MainApp() {
   );
 }
 
-// 기존 HomeScreen
+// 메인 홈 화면 컴포넌트
 function HomeScreen() {
-  const [bpm, setBpm] = useState(0);
-  const panY = useRef(new Animated.Value(0)).current;
-  const { height: screenHeight } = useWindowDimensions();
+  const [bpm, setBpm] = useState(0);  // 심박수 상태 관리
+  const panY = useRef(new Animated.Value(0)).current;  // 드로워의 Y축 위치값
+  const { height: screenHeight } = useWindowDimensions();  // 화면 높이 가져오기
 
-  const logoPosition = 120;
-  const drawerHeight = screenHeight;
-  const maxTranslate = -(screenHeight - logoPosition - 190);
+  // 드로워 위치 계산을 위한 상수들
+  const logoPosition = 120;  // 로고의 상단 위치
+  const drawerHeight = screenHeight - 80;  // 드로워의 전체 높이
+  const maxTranslate = -(screenHeight - logoPosition - 100);  // 드로워가 올라갈 수 있는 최대 높이
 
+  // 드로워의 Y축 애니메이션 값 설정
   const translateY = panY.interpolate({
-    inputRange: [maxTranslate, 0],
-    outputRange: [maxTranslate, 0],
-    extrapolate: "clamp",
+    inputRange: [maxTranslate, 0],  // 입력 범위: 최대 높이부터 0까지
+    outputRange: [maxTranslate, 0],  // 출력 범위: 입력값과 동일
+    extrapolate: "clamp",  // 범위를 벗어나는 값 제한
   });
 
+  // 드로워의 드래그 제스처 처리를 위한 PanResponder 설정
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (event, gestureState) => {
-        const newValue = gestureState.dy;
-        if (newValue <= 0) {
-          panY.setValue(Math.max(maxTranslate, newValue));
-        } else {
-          panY.setValue(newValue);
-        }
+      // 터치 시작 시 드래그 허용 여부
+      onStartShouldSetPanResponder: () => false,
+      // 터치 이동 시 드래그 허용 여부 (10픽셀 이상 움직였을 때만 드래그 시작)
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > 10;
       },
+      // 드래그 중 위치 업데이트
+      onPanResponderMove: (event, gestureState) => {
+        panY.setValue(gestureState.dy);
+      },
+      // 드래그 종료 시 처리
       onPanResponderRelease: (event, gestureState) => {
-        const currentPosition = panY._value;
-        const halfPoint = maxTranslate / 2;
+        const currentPosition = panY._value;  // 현재 드로워 위치
+        const halfPoint = maxTranslate / 2;   // 중간 지점 계산
 
-        if (Math.abs(gestureState.vy) > 2) {
+        // 작은 움직임은 원위치로 돌아가기
+        if (Math.abs(gestureState.dy) < 50) {
           Animated.spring(panY, {
-            toValue: gestureState.vy > 0 ? 0 : maxTranslate,
-            useNativeDriver: true,
-            damping: 20,
-            stiffness: 200,
-            mass: 0.5,
+            toValue: 0,                // 원래 위치로
+            useNativeDriver: true,     // 네이티브 드라이버 사용
+            damping: 30,              // 감쇠 (높을수록 빨리 안정됨)
+            stiffness: 100,           // 강성 (높을수록 빠른 움���임)
+            mass: 1,                  // 질량 (높을수록 느린 움직임)
+            velocity: 0,              // 초기 속도
           }).start();
-        } else {
+          return;
+        }
+
+        // 애니메이션 공통 설정
+        const animationConfig = {
+          useNativeDriver: true,
+          damping: 30,               // 감쇠 계수
+          stiffness: 100,            // 강성 계수
+          mass: 1.2,                 // 질량
+          velocity: gestureState.vy * 0.05,  // 드래그 속도 반영
+          overshootClamping: false,  // 경계값 초과 허용
+          restDisplacementThreshold: 0.01,  // 정지 위치 임계값
+          restSpeedThreshold: 0.01,  // 정지 속도 임계값
+        };
+
+        // 드래그 방향과 거리에 따른 애니메이션 처리
+        if (gestureState.dy > 100) {  // 아래로 많이 드래그
           Animated.spring(panY, {
-            toValue: currentPosition < halfPoint ? maxTranslate : 0,
-            useNativeDriver: true,
-            damping: 20,
-            stiffness: 200,
-            mass: 0.5,
+            toValue: drawerHeight,    // 완전히 내리기
+            ...animationConfig,
+          }).start();
+        } else if (gestureState.dy < -100) {  // 위로 많이 드래그
+          Animated.spring(panY, {
+            toValue: maxTranslate,    // 최대로 올리기
+            ...animationConfig,
+          }).start();
+        } else {  // 중간 정도 드래그
+          Animated.spring(panY, {
+            toValue: currentPosition < halfPoint ? maxTranslate : 0,  // 가까운 위치로
+            ...animationConfig,
           }).start();
         }
       },
     })
   ).current;
 
+  // 심장 박동 애니메이션을 위한 scale 값
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
+  // 심장 박동 애니메이션 시퀀스 정의
   const heartbeat = () => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 500,
+        toValue: 1.2,        // 20% 커지기
+        duration: 500,       // 0.5초 동안
         useNativeDriver: true,
       }),
       Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 500,
+        toValue: 1,          // 원래 크기로
+        duration: 500,       // 0.5초 동안
         useNativeDriver: true,
       }),
-      Animated.delay(500),
-    ]).start(() => heartbeat());
+      Animated.delay(500),   // 0.5초 대기
+    ]).start(() => heartbeat());  // 애니메이션 반복
   };
 
+  // 컴포넌트 마운트 시 심장 박동 애니메이션 시작
   useEffect(() => {
     heartbeat();
   }, []);
 
+  // 표 헤더와 데이터 정의
+  const tableHead = ["", "날짜", "시간", "심장박동수"];  // 표 헤더
+  const tableData = [
+    ["□", "10월 5일", "오후 3시", "120 BPM"],    // 첫 번째 행
+    ["□", "10월 7일", "오전 10시", "116 BPM"],   // 두 번째 행
+    ["□", "10월 13일", "전 12시", "123 BPM"],  // 세 번째 행
+    ["□", "11월 1일", "오후 7시", "140 BPM"],    // 네 번째 행
+  ];
+
+  // UI 렌더링
   return (
     <View style={styles.container}>
+      {/* 좌측 상단 로고 */}
       <View style={styles.logo}>
         <Logo />
       </View>
+
+      {/* 중앙 메인 콘텐츠 */}
       <View style={styles.main}>
         <Text style={styles.onepickFont}>내 마음은?</Text>
+        {/* 심장 애니메이션 영역 */}
         <View style={styles.r}>
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <Heart />
           </Animated.View>
         </View>
+        {/* BPM 수치 표시 */}
         <Text style={[styles.bpmText, styles.mapleFont]}>{bpm} bpm</Text>
       </View>
+
+      {/* 하단 드로워 영역 */}
       <Animated.View
-        style={[styles.defaultDrawer, { transform: [{ translateY }], height: drawerHeight }]}
+        style={[
+          styles.defaultDrawer,
+          { transform: [{ translateY }], height: drawerHeight },
+        ]}
         {...panResponder.panHandlers}
       >
+        {/* 드로워 상단 핸들 */}
         <View style={[styles.drawerHandle, styles.checkSVG]} />
+        {/* 기록 확인 헤더 */}
         <View style={styles.recordCheck}>
           <Check />
           <Text style={[styles.mapleFont, styles.check]}>기록확인</Text>
+        </View>
+
+        {/* 기록 테���블 */}
+        <View style={styles.tableContainer}>
+          <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
+            <Row
+              data={tableHead}
+              style={{ height: 40, backgroundColor: "#BFEAFF" }}
+              textStyle={{
+                textAlign: "center",
+                fontFamily: "MaplestoryOTFLight",
+                color: "#000",
+              }}
+            />
+            <Rows
+              data={tableData}
+              style={{ height: 40 }}
+              textStyle={{
+                textAlign: "center",
+                fontFamily: "MaplestoryOTFLight",
+              }}
+            />
+          </Table>
         </View>
       </Animated.View>
     </View>
   );
 }
 
+// 네비게이션 스택 생성
 const Stack = createStackNavigator();
 
+// 앱의 메인 컴포넌트
 export default function App() {
+  // 커스텀 폰트 로드
   const [fontsLoaded] = useFonts({
     MaplestoryOTFLight: require("./assets/fonts/MaplestoryOTFLight.otf"),
     YOnepickBold: require("./assets/fonts/YOnepick-Bold.ttf"),
   });
 
+  // 폰트 로딩 중일 때 로딩 화면 표시
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <Image source={require("./assets/splash.png")} style={styles.splashImage} />
+        <Image
+          source={require("./assets/splash.png")}
+          style={styles.splashImage}
+        />
         <Text style={styles.loadingText}>당신의 마음을 읽는 중...</Text>
       </View>
     );
   }
 
+  // 앱의 네비게이션 구조 정의
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        initialRouteName="Splash"
+        screenOptions={{ headerShown: false }}
+      >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="IPInput" component={IPInputScreen} />
         <Stack.Screen name="MainApp" component={MainApp} />
@@ -299,7 +409,7 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
   mapleFont: {
-    fontFamily: "Maplestory OTF"
+    fontFamily: "Maplestory OTF",
   },
   bpmText: {
     fontSize: 50,
@@ -334,5 +444,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#929292",
     marginLeft: 5,
+  },
+  tableContainer: {
+    flex: 1,
+    padding: 16,
+    paddingTop: 30,
+    width: "100%",
   },
 });
